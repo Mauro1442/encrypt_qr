@@ -49,7 +49,7 @@ class _CodeScannerState extends State<CodeScanner> {
                   ),
                   onPressed: () async {
                     var data = await FlutterBarcodeScanner.scanBarcode(
-                        "green", "Cancel", false, ScanMode.QR);
+                        "#00FFFFFF", "Cancel", false, ScanMode.QR);
                     setState(() {
                       qrData = data.toString();
                       hasData = true;

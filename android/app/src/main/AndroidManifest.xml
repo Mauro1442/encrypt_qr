@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.encripted_messenger">
    <application
-        android:label="encripted_messenger"
+        android:label="Encrypted QR Messenger"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
