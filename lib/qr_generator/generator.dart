@@ -1,6 +1,7 @@
 import '../encryption/aes.dart';
 import 'qr_code.dart';
 import 'package:flutter/material.dart';
+import '../printer/bt_printer.dart';
 
 
 class CodeGenerator extends StatefulWidget {
@@ -22,10 +23,22 @@ class _CodeGeneratorState extends State<CodeGenerator> {
         title: const Text("Send Message"),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           buildTextFormField(),
-          qrGeneratorButton(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: qrGeneratorButton(),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: qrPrinterButton(),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: btButton(),
+          ),
+
         ],
       ),
     );
@@ -46,7 +59,7 @@ class _CodeGeneratorState extends State<CodeGenerator> {
           Icons.edit,
         ),
       ),
-      onEditingComplete: navigate,
+      onEditingComplete: qrView,
     ),
   );
 
@@ -54,18 +67,56 @@ class _CodeGeneratorState extends State<CodeGenerator> {
     width: ((MediaQuery.of(context).size.width) / 2) - 45,
     height: 35,
     child: ElevatedButton(
-      onPressed: navigate,
+      onPressed: qrView,
       child: const Text(
         "Generate QR",
       ),
     ),
   );
 
-  void navigate() {
+  Widget qrPrinterButton() => SizedBox(
+    width: ((MediaQuery.of(context).size.width) / 2) - 45,
+    height: 35,
+    child: ElevatedButton(
+      onPressed: printText,
+      child: const Text(
+        "Print Text",
+      ),
+    ),
+  );
+
+  Widget btButton() => SizedBox(
+    width: ((MediaQuery.of(context).size.width) / 2) - 45,
+    height: 35,
+    child: ElevatedButton(
+      onPressed: printEncryptedText,
+      child: const Text(
+        "Print encrypted",
+      ),
+    ),
+  );
+
+  void qrView() {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
                 GeneratedQrCode(encryption.encryptMsg(controller.text).base16),),);
+  }
+
+  void printText() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                BluetoothPrinter(controller.text,),),);
+  }
+
+  void printEncryptedText() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                BluetoothPrinter(encryption.encryptMsg(controller.text).base16),),);
   }
 }
