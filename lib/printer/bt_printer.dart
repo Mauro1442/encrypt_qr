@@ -1,31 +1,34 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class BluetoothPrinter extends StatefulWidget {
-  final String printedText;
 
-  const BluetoothPrinter(this.printedText, {super.key});
+  const BluetoothPrinter(this.qrImage, {super.key});
+
+  final List<int> qrImage;
+
 
   @override
-  BluetoothPrinterState createState() => BluetoothPrinterState();
+  State<BluetoothPrinter> createState() => _BluetoothPrinterState();
 }
 
-class BluetoothPrinterState extends State<BluetoothPrinter> {
+class _BluetoothPrinterState extends State<BluetoothPrinter> {
   BluetoothConnection? connection;
   List<BluetoothDevice> devices = [];
   bool isConnecting = false;
   bool isScanning = false;
 
-  late String printedText = '''
-                            ${widget.printedText}
-                            
-                            
-                            
-                            \n
-                            ''';
+  // late String printedText = '''
+  //                           ${widget.printedText}
+  //
+  //
+  //
+  //                           \n
+  //                           ''';
 
   @override
   void initState() {
@@ -34,8 +37,7 @@ class BluetoothPrinterState extends State<BluetoothPrinter> {
   }
 
   Future<void> _getBondedDevices() async {
-    final bondedDevices =
-        await FlutterBluetoothSerial.instance.getBondedDevices();
+    final bondedDevices = await FlutterBluetoothSerial.instance.getBondedDevices();
     setState(() {
       devices = bondedDevices;
     });
@@ -46,15 +48,18 @@ class BluetoothPrinterState extends State<BluetoothPrinter> {
       isConnecting = true;
     });
 
-    BluetoothConnection.toAddress(device.address)
-        .then((BluetoothConnection connection) {
-      print('Connected to the device');
+    BluetoothConnection.toAddress(device.address).then((BluetoothConnection connection) {
+      if (kDebugMode) {
+        print('Connected to the device');
+      }
       setState(() {
         this.connection = connection;
         isConnecting = false;
       });
     }).catchError((error) {
-      print('Cannot connect, error: $error');
+      if (kDebugMode) {
+        print('Cannot connect, error: $error');
+      }
     });
   }
 
@@ -64,7 +69,7 @@ class BluetoothPrinterState extends State<BluetoothPrinter> {
       isScanning = true;
     });
 
-    final Set<String> uniqueAddresses = Set<String>();
+    final Set<String> uniqueAddresses = <String>{};
 
     FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
       if (uniqueAddresses.contains(r.device.address)) {
@@ -82,55 +87,64 @@ class BluetoothPrinterState extends State<BluetoothPrinter> {
     });
   }
 
-  void _printText() {
+  // void _printText() {
+  //   if (connection != null) {
+  //     final data = utf8.encode(printedText ?? '');
+  //     final uint8List = Uint8List.fromList(data);
+  //     connection!.output.add(uint8List);
+  //     connection!.output.allSent.then((_) {
+  //       if (kDebugMode) {
+  //         print('Printed');
+  //       }
+  //     });
+  //   }
+  // }
+
+  void _printImage() {
     if (connection != null) {
-      final data = utf8.encode(printedText);
+      final data = Uint8List.fromList(widget.qrImage!);
       final uint8List = Uint8List.fromList(data);
       connection!.output.add(uint8List);
       connection!.output.allSent.then((_) {
-        print('Printed');
+        if (kDebugMode) {
+          print('Printed');
+        }
       });
     }
   }
 
-  /*
-  *
-  * */
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Bluetooth Printer'),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: devices.length,
-                itemBuilder: (context, index) {
-                  BluetoothDevice device = devices[index];
-                  return ListTile(
-                    title: Text(device.name ?? 'Unknown Device'),
-                    subtitle: Text(device.address),
-                    onTap: () {
-                      _connectToDevice(device);
-                    },
-                  );
-                },
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bluetooth Printer'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: devices.length,
+              itemBuilder: (context, index) {
+                BluetoothDevice device = devices[index];
+                return ListTile(
+                  title: Text(device.name ?? 'Unknown Device'),
+                  subtitle: Text(device.address),
+                  onTap: () {
+                    _connectToDevice(device);
+                  },
+                );
+              },
             ),
-            ElevatedButton(
-              onPressed: isScanning ? null : _startDiscovery,
-              child: Text(isScanning ? 'Scanning...' : 'Scan for Devices'),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _printText,
-          child: Icon(Icons.print),
-        ),
+          ),
+          ElevatedButton(
+            onPressed: isScanning ? null : _startDiscovery,
+            child: Text(isScanning ? 'Scanning...' : 'Scan for Devices'),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _printImage(),//_printText,
+        child: const Icon(Icons.print),
       ),
     );
   }

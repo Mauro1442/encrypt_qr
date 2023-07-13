@@ -78,7 +78,7 @@ class _CodeGeneratorState extends State<CodeGenerator> {
     width: ((MediaQuery.of(context).size.width) / 2) - 45,
     height: 35,
     child: ElevatedButton(
-      onPressed: printText,
+      onPressed: (){},//printText,
       child: const Text(
         "Print Text",
       ),
@@ -104,15 +104,23 @@ class _CodeGeneratorState extends State<CodeGenerator> {
                 GeneratedQrCode(encryption.encryptMsg(controller.text).base16),),);
   }
 
-  void printText() {
+  // void printText() {
+  //   Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //           builder: (context) =>
+  //               BluetoothPrinter(controller.text,),),);
+  // }
+
+  void printEncryptedText() {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
-                BluetoothPrinter(controller.text,),),);
+                BluetoothPrinter(encryption.encryptMsg(controller.text).base16),),);
   }
 
-  void printEncryptedText() {
+  void printQrCode() {
     Navigator.push(
         context,
         MaterialPageRoute(
