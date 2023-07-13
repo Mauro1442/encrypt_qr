@@ -15,6 +15,26 @@ class GeneratedQrCode extends StatefulWidget {
 class _GeneratedQrCodeState extends State<GeneratedQrCode> {
   @override
   Widget build(BuildContext context) {
+    //
+    // String qrData = "google.com";
+    // const double qrSize = 200;
+    // try {
+    //   final uiImg = QrPainter(
+    //     data: qrData,
+    //     version: QrVersions.auto,
+    //     gapless: false,
+    //   ).toImageData(qrSize);
+    //   final dir = getTemporaryDirectory();
+    //   final pathName = '${dir.path}/qr_tmp.png';
+    //   final qrFile = File(pathName);
+    //   final imgFile = await qrFile.writeAsBytes(uiImg.buffer.asUint8List());
+    //   final img = decodeImage(imgFile.readAsBytesSync());
+    //
+    //   generator.image(img);
+    // } catch (e) {
+    //   print(e);
+    // }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Encrypted Message QR"),
@@ -30,13 +50,11 @@ class _GeneratedQrCodeState extends State<GeneratedQrCode> {
           backgroundColor: Colors.white,
         ),
             TextButton(onPressed: () => printQr(
-              QrImageView(
+              QrPainter(
                 data: widget.myQR,
                 version: QrVersions.auto,
-                size: 250.0,
                 gapless: false,
-                backgroundColor: Colors.white,
-              ).toString().codeUnits,
+              ).toImageData(200).toString().codeUnits,
             ), child: const Text("Print")),
             TextButton(onPressed: () => saveFile(), child: const Text("Save image to file")),
       ]),
